@@ -35,14 +35,17 @@ class Action:
         list_count = self.procnet_enity()
         list_enity = ["Predator", "Herbivore", "Grass"]
         for i in range(len(list_enity)):
-            self.add_objects(self.calculate_count(
-                self.proportion[list_enity[i]])-list_count[i], self.object_map[list_enity[i]])
+            self.add_objects(
+                self.calculate_count(
+                    self.proportion[list_enity[i]])-list_count[i],
+                    self.object_map[list_enity[i]]
+            )
 
     def calculate_count(self, proportion):
         return floor(self.map_matrix.get_area()*proportion)
 
     def add_objects(self, count, object_class):
-        while (count):
+        while count:
             point = Point(randint(0, self.map_matrix.weight - 1),
                           randint(0, self.map_matrix.height - 1))
             if not self.map_matrix.get_object(point):

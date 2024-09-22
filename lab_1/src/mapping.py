@@ -31,7 +31,8 @@ class Map:
         return False
 
     def get_all_object(self, sprite: str) -> List[Enity]:
-        return [point for point, enity in self.map_coord.items() if enity.sprite == sprite]
+        return [point for point,
+                enity in self.map_coord.items() if enity.sprite == sprite]
 
     def check_have_object(self, point: Point) -> bool:
         return 0 <= point.x < self.weight and 0 <= point.y < self.height

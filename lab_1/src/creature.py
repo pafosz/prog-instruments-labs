@@ -6,7 +6,12 @@ from point import Point
 
 
 class Creature(Enity, ABC):
-    def __init__(self, point: Point, sprite: str, speed: int, health: int) -> None:
+    def __init__(self,
+                 point: Point,
+                 sprite: str,
+                 speed: int,
+                 health: int
+        ) -> None:
         super().__init__(point, sprite)
         self.speed = speed
         self.health = health
@@ -20,7 +25,12 @@ class Creature(Enity, ABC):
 
 
 class Herbivore(Creature):
-    def __init__(self, point: Point, speed: int = 1, health: int = 5, sprite: str = "🐇") -> None:
+    def __init__(self,
+                 point: Point,
+                 speed: int = 1,
+                 health: int = 5,
+                 sprite: str = "🐇"
+        ) -> None:
         super().__init__(point, sprite, speed, health)
 
     def attack(self, map_matrix: Map):
@@ -31,7 +41,13 @@ class Herbivore(Creature):
 
 
 class Predator(Creature):
-    def __init__(self, point: Point, speed: int = 2, health: int = 8, atack: int = 5, sprite: str = '🐺') -> None:
+    def __init__(self,
+                 point: Point,
+                 speed: int = 2,
+                 health: int = 8,
+                 atack: int = 5,
+                 sprite: str = '🐺'
+        ) -> None:
         super().__init__(point, sprite, speed, health)
         self.atack = atack
 

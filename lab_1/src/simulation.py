@@ -50,7 +50,7 @@ class Simulation:
     def start_simulation(self) -> None:
         self.render.print_info()
         self.action.init_actions()
-        while (True):
+        while True:
             if not self.is_paused:
                 print(f"Итерация: {self.move_count}")
                 self.next_turn()
