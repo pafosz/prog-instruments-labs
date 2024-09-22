@@ -1,5 +1,6 @@
 from math import floor
 from random import randint
+
 from creature import Herbivore, Predator
 from enity import Grass, Rock, Tree
 from hellper import Reader

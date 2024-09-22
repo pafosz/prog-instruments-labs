@@ -1,7 +1,7 @@
 from collections import deque
 from typing import Dict, List, Tuple
 
-from enity import Enity, Grass
+from enity import Enity
 from point import Point
 
 
