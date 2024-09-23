@@ -31,10 +31,13 @@ def main():
                     or execution.
     """
     try:
-        simulation = Simulation(5, 5)  # Initialize the simulation with a grid of 5x5
+         # Initialize the simulation with a grid of 5x5
+        simulation = Simulation(5, 5)
         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-            executor.submit(simulation.start_simulation)  # Start the simulation
-            executor.submit(simulation.listen_for_pause)   # Listen for pause commands
+            # Start the simulation
+            executor.submit(simulation.start_simulation)
+            # Listen for pause commands
+            executor.submit(simulation.listen_for_pause)
     except Exception as e:
         print(f"An error occurred: {e}")
 

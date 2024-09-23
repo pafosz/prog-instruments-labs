@@ -107,7 +107,7 @@ class Map:
         Returns:
             Enity | bool: The entity at the point, or False if not found.
         """
-        if point in self.map_coord.keys():
+        if point in self.map_coord:
             return self.map_coord[point]
         return False
 
