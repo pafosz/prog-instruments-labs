@@ -80,7 +80,8 @@ class Action:
         for i in range(len(list_enity)):
             self.add_objects(
                 self.calculate_count(
-                    self.proportion[list_enity[i]])-list_count[i],
+                    self.proportion[list_enity[i]])
+                    - list_count[i],
                     self.object_map[list_enity[i]]
             )
 
@@ -157,7 +158,7 @@ class Action:
         for shortest_list in lists:
             cord = shortest_list[0]
             enit = self.map_matrix.get_object(cord)
-            if (len(shortest_list)-1) < enit.speed:
+            if (len(shortest_list) - 1) < enit.speed:
                 self.map_matrix.delete_object(cord)
                 enit.coordinate = shortest_list[-1]
                 self.map_matrix.add_object(enit)
@@ -177,4 +178,3 @@ class Action:
         """
         self.action_enity(self.search_short_path("🐇", Predator))
         self.action_enity(self.search_short_path("🌱", Herbivore))
-        
