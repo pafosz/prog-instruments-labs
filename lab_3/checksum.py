@@ -1,11 +1,32 @@
+import re
 import json
 import hashlib
 from typing import List
+
+from file_handler import write_json
+from consts import RESULT
 
 """
 В этом модуле обитают функции, необходимые для автоматизированной проверки результатов ваших трудов.
 """
 
+
+def check_valid(row: list, patterns: dict) -> bool:
+
+    for key, value in zip(patterns.keys(), row):
+        if not re.match(patterns[key], value):
+            print(f"Element {value} does not match the pattern {key}")
+            return False
+    return True
+
+
+def get_invalid_list(data: list, patterns: dict) -> list:
+    invalid_list = []
+    for i, row in enumerate(data):
+        if not check_valid(row, patterns):
+            invalid_list.append(i)
+    return invalid_list
+    
 
 def calculate_checksum(row_numbers: List[int]) -> str:
     """
@@ -38,7 +59,9 @@ def serialize_result(variant: int, checksum: str) -> None:
     :param variant: номер вашего варианта
     :param checksum: контрольная сумма, вычисленная через calculate_checksum()
     """
-    pass
+    result = {'variant': str(variant), 'checksum': checksum}
+    write_json(RESULT, result)
+    
 
 
 if __name__ == "__main__":
