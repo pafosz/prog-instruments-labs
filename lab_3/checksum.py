@@ -1,10 +1,11 @@
-import re
-import json
 import hashlib
+import json
+import re
 from typing import List
 
-from file_handler import write_json
 from consts import RESULT
+from file_handler import write_json
+
 
 """
 В этом модуле обитают функции, необходимые для автоматизированной проверки результатов ваших трудов.
@@ -12,7 +13,15 @@ from consts import RESULT
 
 
 def check_valid(row: list, patterns: dict) -> bool:
+    """Checks if each element in the row matches the corresponding pattern.
 
+    Params:
+     row(list): A list of values to be validated against patterns.
+     patterns(dict): A dictionary where keys are the names of the elements and values are the regex patterns.
+
+    Returns:
+     bool: True if all elements match their corresponding patterns, False otherwise.
+    """
     for key, value in zip(patterns.keys(), row):
         if not re.match(patterns[key], value):
             print(f"Element {value} does not match the pattern {key}")
@@ -21,12 +30,21 @@ def check_valid(row: list, patterns: dict) -> bool:
 
 
 def get_invalid_list(data: list, patterns: dict) -> list:
+    """Identifies the indices of rows that contain invalid elements based on the provided patterns.
+
+    Params:
+     data(list): A list of rows, where each row is a list of values.
+     patterns(dict): A dictionary where keys are the names of the elements and values are the regex patterns.
+
+    Returns:
+     list: A list of indices of rows that contain invalid elements.
+    """
     invalid_list = []
     for i, row in enumerate(data):
         if not check_valid(row, patterns):
             invalid_list.append(i)
     return invalid_list
-    
+
 
 def calculate_checksum(row_numbers: List[int]) -> str:
     """
@@ -44,7 +62,7 @@ def calculate_checksum(row_numbers: List[int]) -> str:
     :return: md5 хеш для проверки через github action
     """
     row_numbers.sort()
-    return hashlib.md5(json.dumps(row_numbers).encode('utf-8')).hexdigest()
+    return hashlib.md5(json.dumps(row_numbers).encode("utf-8")).hexdigest()
 
 
 def serialize_result(variant: int, checksum: str) -> None:
@@ -59,9 +77,8 @@ def serialize_result(variant: int, checksum: str) -> None:
     :param variant: номер вашего варианта
     :param checksum: контрольная сумма, вычисленная через calculate_checksum()
     """
-    result = {'variant': str(variant), 'checksum': checksum}
+    result = {"variant": str(variant), "checksum": checksum}
     write_json(RESULT, result)
-    
 
 
 if __name__ == "__main__":
