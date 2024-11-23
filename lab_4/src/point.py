@@ -12,6 +12,15 @@ Usage:
     coordinates.
 """
 
+import logging
+
+import logging_config
+
+
+logging_config.setup_logging()
+logger = logging.getLogger("PointLogger")
+
+
 class Point:
     """
     A class that represents a point in 2D space.
@@ -39,6 +48,7 @@ class Point:
         """
         self.x = x
         self.y = y
+        logger.info(f"Point created at coordinates: ({x}, {y})")
 
     def __hash__(self) -> int:
         """
@@ -47,7 +57,9 @@ class Point:
         Returns:
             int: The hash value of the point.
         """
-        return hash((self.x, self.y))
+        hash_value = hash((self.x, self.y))
+        logger.debug(f"Hash for point {self}: {hash_value}")
+        return hash_value
 
     def __eq__(self, other) -> bool:
         """
@@ -59,7 +71,9 @@ class Point:
         Returns:
             bool: True if the points are equal, False otherwise.
         """
-        return self.x == other.x and self.y == other.y
+        equal = self.x == other.x and self.y == other.y
+        logger.debug(f"Comparing {self} with {other}: Equal = {equal}")
+        return equal
 
     def __str__(self) -> str:
         """
@@ -79,7 +93,7 @@ class Point:
         """
         return f"Point(X:{self.x}, Y:{self.y})"
 
-    def get_neighboors(self) -> list:
+    def get_neighboors(self, width: int, height: int) -> list:
         """
         Returns a list of neighboring points.
 
@@ -87,13 +101,26 @@ class Point:
             list: A list containing the points directly adjacent 
                    (up, down, left, right) to the current point.
         """
-        # возможна проверка не вышел ли я за границу
-        return [
-            Point(self.x, self.y + 1),  # Up
-            Point(self.x, self.y - 1),  # Down
-            Point(self.x + 1, self.y),   # Right
-            Point(self.x - 1, self.y)    # Left
-        ]
+        neighbors = []
+
+        # Проверка верхней границы
+        if self.y + 1 < height:
+            neighbors.append(Point(self.x, self.y + 1))  # Up
+
+        # Проверка нижней границы
+        if self.y - 1 >= 0:
+            neighbors.append(Point(self.x, self.y - 1))  # Down
+
+        # Проверка правой границы
+        if self.x + 1 < width:
+            neighbors.append(Point(self.x + 1, self.y))   # Right
+
+        # Проверка левой границы
+        if self.x - 1 >= 0:
+            neighbors.append(Point(self.x - 1, self.y))    # Left
+
+        logger.debug(f"Neighbors for point {self}: {neighbors}")
+        return neighbors
 
     @property
     def point(self) -> tuple:
@@ -114,3 +141,4 @@ class Point:
             coords (tuple): A tuple containing the new x and y coordinates.
         """
         self.x, self.y = coords
+        logger.info(f"Point coordinates updated to: {coords}")

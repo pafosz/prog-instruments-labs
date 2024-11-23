@@ -13,6 +13,13 @@ Usage:
 """
 
 import json
+import logging
+
+import logging_config  
+
+
+logging_config.setup_logging()
+logger = logging.getLogger('ReaderLogger')
 
 
 class Reader:
@@ -43,7 +50,13 @@ class Reader:
             json.JSONDecodeError: If the file is not valid JSON.
         """
         try:
-            return Reader.read_json(filename)
-        except (FileNotFoundError, json.JSONDecodeError) as e:
-            print(f"Error reading {filename}: {e}")
-            return None
+            with open(filename, 'r') as file:
+                data = json.load(file)
+            logger.info(f"Successfully read JSON data from {filename}.")
+            return data
+        except FileNotFoundError as e:
+            logger.error(f"File not found: {filename}. Error: {e}")
+            raise
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid JSON in file {filename}. Error: {e}")
+            raise

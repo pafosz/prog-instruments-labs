@@ -13,12 +13,18 @@ Usage:
     which will handle rendering and game logic.
 """
 
+import logging
 import time
 
 from action import Action
 from const import PATH
+import logging_config
 from mapping import Map
 from point import Point
+
+
+logging_config.setup_logging()
+logger = logging.getLogger("SimulationLogger")
 
 
 class Render:
@@ -41,6 +47,7 @@ class Render:
             map_coord (Map): The map to be rendered.
         """
         self.map_matrix = map_coord
+        logger.info("Render initialized with map of size (%d, %d)", map_coord.height, map_coord.weight)
 
     @staticmethod
     def print_info() -> None:
@@ -57,12 +64,14 @@ class Render:
         for key, value in dict_info_object.items():
             print(f'{key} - {value}')
         print("Нажмите Enter для переключения паузы:")
+        logger.info("Displayed entity types information.")
 
     def draw_map(self) -> None:
         """
         Renders the current state of the map, displaying each entity or an 
         empty space if none exists.
         """
+        logger.debug("Drawing the map.")
         for i in range(self.map_matrix.height):
             for j in range(self.map_matrix.weight):
                 obj = self.map_matrix.get_object(Point(j, i))
@@ -71,6 +80,7 @@ class Render:
                 else:
                     print("|  |", end="")
             print()
+        logger.debug("Map drawn.")
 
 
 class Simulation:
@@ -104,15 +114,18 @@ class Simulation:
         self.render = Render(map_coord=self.matrix)
         self.action = Action(map_coord=self.matrix, proportion_file=PATH)
         self.is_paused = False
+        logger.info("Simulation initialized with height: %d, weight: %d", height, weight)
 
     def next_turn(self) -> None:
         """
         Advances the simulation by one turn, rendering the map and 
         executing entity actions.
         """
+        logger.info("Advancing to turn: %d", self.move_count)        
         self.render.draw_map()
         self.action.turn_actions()
         self.move_count += 1
+        logger.info("Turn advanced to: %d", self.move_count)
 
     def start_simulation(self) -> None:
         """
@@ -121,6 +134,7 @@ class Simulation:
         """
         self.render.print_info()
         self.action.init_actions()
+        logger.info("Starting simulation loop.")
         while True:
             if not self.is_paused:
                 print(f"Итерация: {self.move_count}")
@@ -134,10 +148,13 @@ class Simulation:
         Listens for user input to pause or resume the simulation.
         The simulation can be toggled between paused and running states.
         """
+        logger.info("Listening for pause input.")
         while True:
             input()
             self.is_paused = not self.is_paused
             if self.is_paused:
+                logger.info("Simulation paused.")
                 print("Игра на паузе. Для продолжения тыкните Enter")
             else:
+                logger.info("Simulation resumed.")
                 print("Игра продолжается.")

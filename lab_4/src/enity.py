@@ -16,8 +16,14 @@ Usage:
 """
 
 from abc import ABC
+import logging
 
+import logging_config
 from point import Point
+
+
+logging_config.setup_logging()
+logger = logging.getLogger("EntityLogger")
 
 
 class Enity(ABC):
@@ -38,6 +44,7 @@ class Enity(ABC):
         """
         self.coordinate = point
         self.sprite = sprite
+        logger.info(f"{self.__class__.__name__} created at {point} with sprite '{sprite}'.")
 
     def get_coord(self) -> tuple:
         """

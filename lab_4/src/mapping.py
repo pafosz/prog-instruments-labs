@@ -15,10 +15,16 @@ Usage:
 """
 
 from collections import deque
+import logging
 from typing import Dict, List, Tuple
 
 from enity import Enity
+import logging_config
 from point import Point
+
+
+logging_config.setup_logging()
+logger = logging.getLogger('MapLogger')
 
 
 class Map:
@@ -55,6 +61,7 @@ class Map:
         self.height = height
         self.weight = weight
         self.map_coord = {}
+        logger.info(f"Map initialized with dimensions: {height}x{weight}")
 
     def get_size(self) -> Tuple[int]:
         """
@@ -63,6 +70,7 @@ class Map:
         Returns:
             Tuple[int]: A tuple containing the height and width of the map.
         """
+        logger.debug("Getting map size.")
         return self.height, self.weight
 
     def get_area(self) -> int:
@@ -72,7 +80,9 @@ class Map:
         Returns:
             int: The area of the map (height * width).
         """
-        return self.height*self.weight
+        area = self.height * self.weight
+        logger.debug(f"Map area calculated: {area}")
+        return area
 
     def add_object(self, obj: Enity) -> Dict:
         """
@@ -86,6 +96,7 @@ class Map:
         """
         point = obj.coordinate
         self.map_coord[point] = obj
+        logger.info(f"Added object at {point}: {obj}")
         return self.map_coord[point]
 
     def delete_object(self, point) -> None:
@@ -95,7 +106,11 @@ class Map:
         Args:
             point (Point): The coordinate of the entity to be removed.
         """
-        del self.map_coord[point]
+        if point in self.map_coord:
+            del self.map_coord[point]
+            logger.info(f"Deleted object at {point}.")
+        else:
+            logger.warning(f"Tried to delete non-existing object at {point}.")
 
     def get_object(self, point) -> Enity | bool:
         """
@@ -107,9 +122,12 @@ class Map:
         Returns:
             Enity | bool: The entity at the point, or False if not found.
         """
-        if point in self.map_coord:
-            return self.map_coord[point]
-        return False
+        entity = self.map_coord.get(point, False)
+        if entity:
+            logger.info(f"Retrieved object at {point}: {entity}")
+        else:
+            logger.warning(f"No object found at {point}.")
+        return entity
 
     def get_all_object(self, sprite: str) -> List[Enity]:
         """
@@ -121,8 +139,9 @@ class Map:
         Returns:
             List[Enity]: A list of entities matching the specified sprite.
         """
-        return [point for point,
-                enity in self.map_coord.items() if enity.sprite == sprite]
+        entities = [enity for enity in self.map_coord.values() if enity.sprite == sprite]
+        logger.info(f"Retrieved {len(entities)} objects with sprite '{sprite}'.")
+        return entities
 
     def check_have_object(self, point: Point) -> bool:
         """
@@ -134,7 +153,9 @@ class Map:
         Returns:
             bool: True if the point is within bounds, False otherwise.
         """
-        return 0 <= point.x < self.weight and 0 <= point.y < self.height
+        in_bounds = 0 <= point.x < self.weight and 0 <= point.y < self.height
+        logger.debug(f"Point {point} is within bounds: {in_bounds}")
+        return in_bounds
 
     def search_path(self, start: Point, target: Point) -> List[Point]:
         """
@@ -150,6 +171,7 @@ class Map:
         """
         queue = deque([(start, [start])])
         visited = set([start])
+        logger.info(f"Searching path from {start} to {target}.")
         neighbor_target = target.get_neighboors()
         while queue:
             current, path = queue.popleft()
@@ -165,5 +187,5 @@ class Map:
                 if neighbor not in visited:
                     visited.add(neighbor)
                     queue.append((neighbor, path + [neighbor]))
-
+        logger.warning(f"No path found from {start} to {target}.")
         return []

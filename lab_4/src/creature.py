@@ -16,10 +16,16 @@ Usage:
 """
 
 from abc import ABC, abstractmethod
+import logging
 
 from enity import Enity, Grass
+import logging_config
 from mapping import Map
 from point import Point
+
+
+logging_config.setup_logging()
+logger = logging.getLogger('CreatureLogger')
 
 
 class Creature(Enity, ABC):
@@ -50,6 +56,8 @@ class Creature(Enity, ABC):
         super().__init__(point, sprite)
         self.speed = speed
         self.health = health
+        logger.info(f"{self.__class__.__name__} created at {point} with speed \
+                     {speed} and health {health}.")
 
     def make_move(self, new_x: int, new_y: int) -> None:
         """
@@ -59,6 +67,7 @@ class Creature(Enity, ABC):
             new_x (int): The new x-coordinate.
             new_y (int): The new y-coordinate.
         """
+        logger.info(f"{self.__class__.__name__} moving from {self.point} to ({new_x}, {new_y}).")
         self.point = Point(new_x, new_y)
 
     @abstractmethod
@@ -111,6 +120,7 @@ class Herbivore(Creature):
         coord = self.coordinate.get_neighboors()
         for i in coord:
             if isinstance(map_matrix.get_object(i), Grass):
+                logger.info(f"{self.__class__.__name__} attacking grass at {i}.")
                 map_matrix.delete_object(i)
 
 
@@ -157,6 +167,8 @@ class Predator(Creature):
             if isinstance(map_matrix.get_object(i), Herbivore):
                 enit = map_matrix.get_object(i)
                 enit.health -= self.atack
+                logger.info(f"{self.__class__.__name__} attacking {enit.__class__.__name__} at {i}.")
                 if enit.health <= 0:
+                    logger.info(f"{enit.__class__.__name__} at {i} has been killed.")
                     map_matrix.delete_object(i)
                 break

@@ -14,8 +14,14 @@ Usage:
 """
 
 import concurrent.futures
+import logging  
 
+import logging_config
 from simulation import Simulation
+
+
+logging_config.setup_logging()
+logger = logging.getLogger("MainLogger")
 
 
 def main():
@@ -31,16 +37,23 @@ def main():
                     or execution.
     """
     try:
-         # Initialize the simulation with a grid of 5x5
+        # Initialize the simulation with a grid of 5x5
+        logger.info("Initializing simulation with a grid of 5x5.")
         simulation = Simulation(5, 5)
         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+
             # Start the simulation
+            logger.info("Starting simulation thread.")
             executor.submit(simulation.start_simulation)
+
             # Listen for pause commands
+            logger.info("Starting pause listener thread.")
             executor.submit(simulation.listen_for_pause)
     except Exception as e:
+        logger.error("An error occurred during simulation initialization or execution: %s", e)
         print(f"An error occurred: {e}")
 
 
 if __name__ == "__main__":
+    logger.info("Simulation module started.")
     main()

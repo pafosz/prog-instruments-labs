@@ -14,14 +14,20 @@ Usage:
     manage their actions during the simulation.
 """
 
+import logging
 from math import floor
 from random import randint
 
 from creature import Herbivore, Predator
 from enity import Grass, Rock, Tree
 from hellper import Reader
+import logging_config
 from mapping import Map
 from point import Point
+
+
+logging_config.setup_logging()
+logger = logging.getLogger('ActionLogger')
 
 
 class Action:
@@ -51,6 +57,7 @@ class Action:
             "Herbivore": Herbivore,
             "Predator": Predator
         }
+        logger.info("Action initialized successfully.")
 
     def procnet_enity(self) -> list:
         """
@@ -68,6 +75,7 @@ class Action:
                 list_count[1] += 1
             elif isinstance(enit, Grass):
                 list_count[2] += 1
+        logger.debug(f"Entity counts: {list_count}")
         return list_count
 
     def calculate_more_enity(self):
@@ -78,12 +86,9 @@ class Action:
         list_count = self.procnet_enity()
         list_enity = ["Predator", "Herbivore", "Grass"]
         for i in range(len(list_enity)):
-            self.add_objects(
-                self.calculate_count(
-                    self.proportion[list_enity[i]])
-                    - list_count[i],
-                    self.object_map[list_enity[i]]
-            )
+            needed_count = self.calculate_count(self.proportion[list_enity[i]]) - list_count[i]
+            logger.info(f"Adding {needed_count} {list_enity[i]}(s) to the map.")
+            self.add_objects(needed_count, self.object_map[list_enity[i]])
 
     def calculate_count(self, proportion: float) -> int:
         """
@@ -96,7 +101,9 @@ class Action:
         Returns:
             int: The number of objects to be created.
         """
-        return floor(self.map_matrix.get_area()*proportion)
+        count = floor(self.map_matrix.get_area() * proportion)
+        logger.debug(f"Calculated count for proportion {proportion}: {count}")
+        return count
 
     def add_objects(self, count: int, object_class) -> None:
         """
@@ -112,7 +119,10 @@ class Action:
             if not self.map_matrix.get_object(point):
                 obj = object_class(point)
                 self.map_matrix.add_object(obj)
+                logger.info(f"Added {obj.__class__.__name__} at {point}.")
                 count -= 1
+            else:
+                logger.debug(f"Point {point} is already occupied.")
 
     def init_actions(self) -> None:
         """
@@ -120,8 +130,9 @@ class Action:
         the specified proportions.
         """
         for obj_name, proportion in self.proportion.items():
-            self.add_objects(self.calculate_count(proportion),
-                             self.object_map[obj_name])
+            count = self.calculate_count(proportion)
+            logger.info(f"Initializing {count} {obj_name}(s) on the map.")
+            self.add_objects(count, self.object_map[obj_name])
 
     def search_short_path(self, sprite, obj) -> list:
         """
@@ -141,10 +152,13 @@ class Action:
                 grass = self.map_matrix.get_all_object(sprite)
                 short_path = []
                 for i in grass:
-                    short_path.append(self.map_matrix.search_path(cord, i))
-                non_empty_lists = [lst for lst in short_path if lst]
-                if non_empty_lists:
-                    all_short_path.append(min(non_empty_lists, key=len))
+                    path = self.map_matrix.search_path(cord, i)
+                    if path:
+                        short_path.append(path)
+                if short_path:
+                    min_path = min(short_path, key=len)
+                    all_short_path.append(min_path)
+                    logger.debug(f"Shortest path found: {min_path}")
         return all_short_path
 
     def action_enity(self, lists: list) -> None:
@@ -158,11 +172,13 @@ class Action:
         for shortest_list in lists:
             cord = shortest_list[0]
             enit = self.map_matrix.get_object(cord)
+            logger.info(f"Moving entity {enit.__class__.__name__} from {cord} to {shortest_list[-1]}.")
             if (len(shortest_list) - 1) < enit.speed:
                 self.map_matrix.delete_object(cord)
                 enit.coordinate = shortest_list[-1]
                 self.map_matrix.add_object(enit)
                 enit.attack(self.map_matrix)
+                logger.info(f"{enit.__class__.__name__} attacked after moving.")
             else:
                 self.map_matrix.delete_object(cord)
                 enit.coordinate = shortest_list[enit.speed]
@@ -176,5 +192,8 @@ class Action:
         Args:
             lists (list): A list of shortest paths for entities.
         """
-        self.action_enity(self.search_short_path("🐇", Predator))
-        self.action_enity(self.search_short_path("🌱", Herbivore))
+        predator_paths = self.search_short_path("🐇", Predator)
+        herbivore_paths = self.search_short_path("🌱", Herbivore)
+        logger.info(f"Executing actions for {len(predator_paths)} predators and {len(herbivore_paths)} herbivores.")
+        self.action_enity(predator_paths)
+        self.action_enity(herbivore_paths)
