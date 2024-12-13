@@ -54,4 +54,3 @@ def test_net_profit_calculation():
 def test_parametrized_tax_calculation(transactions, expected_tax):
     tax = TaxCalculator.calculate_tax(transactions)
     assert tax == pytest.approx(expected_tax)
-
