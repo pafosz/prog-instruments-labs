@@ -37,14 +37,44 @@ def test_tax_calculation():
     tax = TaxCalculator.calculate_tax(transactions)
     assert tax == pytest.approx(156.0)
 
-def test_net_profit_calculation():
-    transactions = [
-        Transaction(1000, 'income', 'salary'),
-        Transaction(500, 'expense', 'rent'),
-        Transaction(200, 'expense', 'utilities')
+@pytest.mark.parametrize(
+    "transactions, expected_net_profit",
+    [
+        (
+            [
+                Transaction(1000, 'income', 'salary'),
+                Transaction(500, 'expense', 'rent'),
+                Transaction(200, 'expense', 'utilities')
+            ],
+            300
+        ),
+        (
+            [
+                Transaction(2000, 'income', 'business'),
+                Transaction(800, 'expense', 'supplies'),
+                Transaction(300, 'expense', 'marketing')
+            ],
+            900
+        ),
+        (
+            [
+                Transaction(1500, 'income', 'freelance'),
+                Transaction(1000, 'expense', 'travel')
+            ],
+            500
+        ),
+        (
+            [
+                Transaction(1000, 'income', 'salary'),
+                Transaction(1000, 'expense', 'salary')
+            ],
+            0
+        )
     ]
+)
+def test_net_profit_calculation(transactions, expected_net_profit):
     net_profit = TaxCalculator.calculate_net_profit(transactions)
-    assert net_profit == 300
+    assert net_profit == expected_net_profit
 
 @pytest.mark.parametrize("transactions,expected_tax", [
     ([Transaction(1000, 'income', 'salary')], 130.0),
@@ -54,3 +84,4 @@ def test_net_profit_calculation():
 def test_parametrized_tax_calculation(transactions, expected_tax):
     tax = TaxCalculator.calculate_tax(transactions)
     assert tax == pytest.approx(expected_tax)
+            
